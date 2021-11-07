@@ -14,17 +14,17 @@ fs.readdir(dirPath, function (err, items) {
         const ext = path.extname(items[i]);
 
         fs.stat(path.join(__dirname, `styles/${items[i]}`), function (err, stats) {
-            if (stats.isFile() &&  ext === '.css') {
+            if (stats.isFile() && ext === '.css') {
                 let mass = [];
                 const readStream = fs.createReadStream(path.join(__dirname, `styles/${items[i]}`), {encoding: 'utf-8'});
-                    readStream.on('data', (data) => {
-                        mass.push(data.toString());
-                    });
-                    readStream.on('end', () => {
-                        fs.appendFile(bundleFilePath, mass.join('\n'), (err) => {
-                            if (err) throw err;
-                        })
-                    });
+                readStream.on('data', (data) => {
+                    mass.push(data.toString());
+                });
+                readStream.on('end', () => {
+                    fs.appendFile(bundleFilePath, mass.join('\n'), (err) => {
+                        if (err) throw err;
+                    })
+                });
 
             }
         })
