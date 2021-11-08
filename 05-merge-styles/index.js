@@ -24,10 +24,8 @@ fs.readdir(dirPath, function (err, items) {
                     fs.appendFile(bundleFilePath, mass.join('\n'), (err) => {
                         if (err) throw err;
                     })
-                });
-
+                })
             }
         })
     }
-
 })

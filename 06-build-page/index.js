@@ -26,7 +26,6 @@ readStream.on('data', async (chunk) => {
     fs.readdir(componentsDirPath, (err, files) => {
 
         files.forEach((file, index) => {
-            console.log(file)
             fs.createReadStream(path.join(path.join(__dirname, 'components'), file), {encoding: 'utf-8'})
                 .on('data', (data) => {
                         htmlAsString = htmlAsString.replace(new RegExp('{{' + file.split('.')[0] + '}}', 'g'), data.toString());
@@ -62,12 +61,10 @@ fs.readdir(dirStyles, function (err, items) {
                     fs.appendFile(stylesBundleFile, mass.join('\n'), (err) => {
                         if (err) throw err;
                     })
-                });
-
+                })
             }
         })
     }
-
 })
 
 
@@ -102,7 +99,6 @@ fs.access(assetsDirCopy, (err) => {
                     }
                 })
             })
-        });
-
+        })
     }
 })
