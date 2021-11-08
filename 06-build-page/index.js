@@ -18,12 +18,12 @@ const readStream = fs.createReadStream(path.join(__dirname, 'template.html'), 'u
 const writeStream = fs.createWriteStream(path.join(path.join(__dirname, 'project-dist'), 'index.html'));
 
 
-readStream.on('data', async (chunk) => {
+ readStream.on('data', async (chunk) => {
 
     let htmlAsString = chunk.toString();
     const templateTags = htmlAsString.match(/{{.+}}/gi);
 
-    fs.readdir(componentsDirPath, (err, files) => {
+   await  fs.readdir(componentsDirPath, (err, files) => {
 
         files.forEach((file, index) => {
             fs.createReadStream(path.join(path.join(__dirname, 'components'), file), {encoding: 'utf-8'})
