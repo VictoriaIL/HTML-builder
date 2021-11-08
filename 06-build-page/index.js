@@ -28,7 +28,6 @@ readStream.on('data', async (chunk) => {
 
     async function fillHTML() {
         const components = await fs.promises.readdir(componentsDirPath);
-        // return components.forEach((currentComponentTitle, index) => {
         for (let i = 0; i < components.length; i++) {
             const componentHTML = await fs.promises.readFile(path.join(componentsDirPath, components[i]));
             htmlAsString = htmlAsString.replace(new RegExp('{{' + components[i].split('.')[0] + '}}', 'g'), componentHTML.toString())
