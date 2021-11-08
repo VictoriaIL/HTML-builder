@@ -18,25 +18,25 @@ const readStream = fs.createReadStream(path.join(__dirname, 'template.html'), 'u
 const writeStream = fs.createWriteStream(path.join(path.join(__dirname, 'project-dist'), 'index.html'));
 
 
- readStream.on('data', async (chunk) => {
+readStream.on('data', async (chunk) => {
 
     let htmlAsString = chunk.toString();
     const templateTags = htmlAsString.match(/{{.+}}/gi);
 
-   await  fs.readdir(componentsDirPath, (err, files) => {
+    const filledFile = await fillHTML();
+    writeStream.write(filledFile)
 
-        files.forEach((file, index) => {
-            fs.createReadStream(path.join(path.join(__dirname, 'components'), file), {encoding: 'utf-8'})
-                .on('data', (data) => {
-                        htmlAsString = htmlAsString.replace(new RegExp('{{' + file.split('.')[0] + '}}', 'g'), data.toString());
-                        if (index === templateTags.length - 1) {
-                            writeStream.write(htmlAsString)
-                        }
-                    }
-                )
-        });
-    });
-
+    async function fillHTML() {
+        const components = await fs.promises.readdir(componentsDirPath);
+        // return components.forEach((currentComponentTitle, index) => {
+        for (let i = 0; i < components.length; i++) {
+            const componentHTML = await fs.promises.readFile(path.join(componentsDirPath, components[i]));
+            htmlAsString = htmlAsString.replace(new RegExp('{{' + components[i].split('.')[0] + '}}', 'g'), componentHTML.toString())
+            if (i === templateTags.length - 1) {
+                return htmlAsString;
+            }
+        }
+    }
 })
 
 /*.........Styles............*/
@@ -101,4 +101,5 @@ fs.access(assetsDirCopy, (err) => {
             })
         })
     }
+
 })
