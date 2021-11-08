@@ -1,14 +1,14 @@
 const fs = require('fs');
 const path = require('path');
-const dir = './06-build-page/project-dist';
-const componentsPath = path.join(__dirname, 'components');
+const dirProjectDist = './06-build-page/project-dist';
+const componentsDirPath = path.join(__dirname, 'components');
 const dirStyles = path.join(__dirname, 'styles');
-const stylesFilePath = path.join(__dirname, 'project-dist', 'style.css');
+const stylesBundleFile = path.join(__dirname, 'project-dist', 'style.css');
 const assetsDir = path.join(__dirname, 'assets');
 const assetsDirCopy = path.join(__dirname, 'project-dist', 'assets');
 
 /*.........Tags............*/
-fs.mkdir(dir, {recursive: true}, (err) => {
+fs.mkdir(dirProjectDist, {recursive: true}, (err) => {
     if (err) {
         throw err;
     }
@@ -18,44 +18,31 @@ const readStream = fs.createReadStream(path.join(__dirname, 'template.html'), 'u
 const writeStream = fs.createWriteStream(path.join(path.join(__dirname, 'project-dist'), 'index.html'));
 
 
-readStream.on('data', async (data) => {
+readStream.on('data', async (chunk) => {
 
-    let htmlAsString = data.toString();
+    let htmlAsString = chunk.toString();
     const templateTags = htmlAsString.match(/{{.+}}/gi);
 
-    fillHTML();
+    fs.readdir(componentsDirPath, (err, files) => {
 
-
-    function fillHTML() {
-        fs.readdir(componentsPath, (err, files) => {
-            files.forEach((file, index) => replaceTagByComponent(file, index))
+        files.forEach((file, index) => {
+            console.log(file)
+            fs.createReadStream(path.join(path.join(__dirname, 'components'), file), {encoding: 'utf-8'})
+                .on('data', (data) => {
+                        htmlAsString = htmlAsString.replace(new RegExp('{{' + file.split('.')[0] + '}}', 'g'), data.toString());
+                        if (index === templateTags.length - 1) {
+                            writeStream.write(htmlAsString)
+                        }
+                    }
+                )
         });
-
-    }
-
-    function replaceTagByComponent(file, currentIndexOfFile) {
-        if (file) {
-            fs.readFile(path.join(componentsPath, file), (err, data) => {
-                replaceDataByTag(file, data, currentIndexOfFile)
-            });
-        }
-    }
-
-    function replaceDataByTag(file, data, currentIndexOfFile) {
-        setTimeout(() => {
-            htmlAsString = htmlAsString.replace(new RegExp('{{' + file.split('.')[0] + '}}', 'g'), data.toString())
-            if (currentIndexOfFile === templateTags.length - 1) {
-                writeStream.write(htmlAsString)
-            }
-        }, 1000)
-
-    }
+    });
 
 })
 
 /*.........Styles............*/
 
-fs.open(stylesFilePath, 'w', (err) => {
+fs.open(stylesBundleFile, 'w', (err) => {
     if (err) throw err;
 });
 
@@ -72,7 +59,7 @@ fs.readdir(dirStyles, function (err, items) {
                     mass.push(data.toString());
                 });
                 readStream.on('end', () => {
-                    fs.appendFile(stylesFilePath, mass.join('\n'), (err) => {
+                    fs.appendFile(stylesBundleFile, mass.join('\n'), (err) => {
                         if (err) throw err;
                     })
                 });
@@ -88,18 +75,18 @@ fs.readdir(dirStyles, function (err, items) {
 
 fs.access(assetsDirCopy, (err) => {
     if (err) {
-        copyDir(assetsDir, assetsDirCopy);
+        newDir(assetsDir, assetsDirCopy);
     } else {
         fs.rm(assetsDirCopy, {recursive: true}, (err) => {
             if (err) {
                 throw err;
             }
-            copyDir(assetsDir, assetsDirCopy);
+            newDir(assetsDir, assetsDirCopy);
         })
     }
 
-    function copyDir(dirPath, copyDirPath) {
-        fs.mkdir(copyDirPath, {recursive: true}, (err) => {
+    function newDir(dirPath, newDirPath) {
+        fs.mkdir(newDirPath, {recursive: true}, (err) => {
             if (err) {
                 throw err;
             }
@@ -107,11 +94,11 @@ fs.access(assetsDirCopy, (err) => {
                 files.forEach((file) => {
                     if (file.isFile()) {
                         const filePath = path.join(dirPath, file.name);
-                        const copyPath = path.join(copyDirPath, file.name);
-                        fs.copyFile(filePath.toString(), copyPath.toString(), (err) => {
+                        const newPath = path.join(newDirPath, file.name);
+                        fs.copyFile(filePath.toString(), newPath.toString(), (err) => {
                         });
                     } else {
-                        copyDir(path.join(dirPath, file.name), path.join(copyDirPath, file.name));
+                        newDir(path.join(dirPath, file.name), path.join(newDirPath, file.name));
                     }
                 })
             })
