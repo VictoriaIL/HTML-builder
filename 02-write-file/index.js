@@ -21,8 +21,8 @@ let rl = readline.createInterface({
 
 rl.on('line', (input) => {
     input = input.toLowerCase();
-    if (input === 'exit') {
-        console.log(`${os.EOL}Your text has been added in the file!${os.EOL}`);
+    if (input.trim() === 'exit') {
+        console.log(`${os.EOL}Great! Your text has been added in the file!${os.EOL}`);
         process.exit();
     }
     fs.appendFile(filePath, `${input}${os.EOL}`, (err) => {
