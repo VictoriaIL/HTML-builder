@@ -12,7 +12,6 @@ fs.access(dir, (err) => {
             if (err) {
                 throw err;
             }
-            console.log("Directory is deleted.");
             copyFile();
         })
     }
@@ -22,7 +21,6 @@ fs.access(dir, (err) => {
             if (err) {
                 throw err;
             }
-            console.log("Directory is created.");
             fs.readdir(filePath, (err, files) => {
                 files.forEach(file => {
                     fs.copyFile(path.join(__dirname, '/files/' + file), path.join(__dirname, 'files-copy/' + file), (err) => {
